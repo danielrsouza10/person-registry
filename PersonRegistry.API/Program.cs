@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using PersonRegistry.API.ExceptionHandling;
 using PersonRegistry.Application.DTOs;
 using PersonRegistry.Application.Interfaces;
 using PersonRegistry.Application.Services;
@@ -17,6 +18,9 @@ builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+
 builder.Services.AddSingleton<IPessoaRepository, PessoaRepository>();
 
 builder.Services.AddScoped<IPessoaService, PessoaService>();
@@ -28,7 +32,7 @@ builder.Services.Configure<AdminSettings>(builder.Configuration.GetSection("Admi
 
 
 var jwtSecret = builder.Configuration["JwtSettings:Secret"]
-                ?? throw new InvalidOperationException("A chave JWT não foi configurada.");
+                ?? throw new InvalidOperationException("A chave JWT nï¿½o foi configurada.");
 
 var key = Encoding.ASCII.GetBytes(jwtSecret);
 
@@ -57,6 +61,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
+
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 app.UseHttpsRedirection();
 

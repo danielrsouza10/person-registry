@@ -1,9 +1,7 @@
-﻿using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PersonRegistry.Application.DTOs;
 using PersonRegistry.Application.Interfaces;
-using PersonRegistry.Application.Services;
 
 namespace PersonRegistry.API.Controllers
 {
@@ -31,7 +29,9 @@ namespace PersonRegistry.API.Controllers
             var pessoa = await _service.ObterPorCodigoAsync(codigo);
             if (pessoa == null)
             {
-                return NotFound(new { Mensagem = $"Pessoa não encontrada com o codigo {codigo}." });
+                return Problem(
+                    detail: $"Pessoa não encontrada com o código {codigo}.",
+                    statusCode: StatusCodes.Status404NotFound);
             }
             return Ok(pessoa);
         }
@@ -46,36 +46,23 @@ namespace PersonRegistry.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Gravar([FromBody] RequisicaoPessoaDto dto)
         {
-            try
-            {
-                var pessoaSalva = await _service.AdicionarAsync(dto);
-
-                return CreatedAtAction(nameof(ObterPorCodigo), new { codigo = pessoaSalva.Codigo }, pessoaSalva);
-            }
-            catch (ValidationException ex)
-            {
-                var erros = ex.Errors.Select(e => e.ErrorMessage);
-                return BadRequest(new { Mensagem = "Erro de validação", Erros = erros });
-            }
+            var pessoaSalva = await _service.AdicionarAsync(dto);
+            return CreatedAtAction(nameof(ObterPorCodigo), new { codigo = pessoaSalva.Codigo }, pessoaSalva);
         }
 
         [HttpPut("{codigo}")]
         public async Task<IActionResult> Atualizar([FromRoute] int codigo, [FromBody] RequisicaoPessoaDto dto)
         {
-            try
-            {
-                var pessoaAtualizada = await _service.AtualizarAsync(codigo, dto);
+            var pessoaAtualizada = await _service.AtualizarAsync(codigo, dto);
 
-                if (pessoaAtualizada == null)
-                    return NotFound(new { Mensagem = "Pessoa não encontrada para atualização." });
-
-                return Ok(pessoaAtualizada);
-            }
-            catch (ValidationException ex)
+            if (pessoaAtualizada == null)
             {
-                var erros = ex.Errors.Select(e => e.ErrorMessage);
-                return BadRequest(new { Mensagem = "Erro de validação", Erros = erros });
+                return Problem(
+                    detail: "Pessoa não encontrada para atualização.",
+                    statusCode: StatusCodes.Status404NotFound);
             }
+
+            return Ok(pessoaAtualizada);
         }
 
         [HttpDelete("{codigo}")]
@@ -84,7 +71,11 @@ namespace PersonRegistry.API.Controllers
             var excluido = await _service.ExcluirAsync(codigo);
 
             if (!excluido)
-                return NotFound(new { Mensagem = "Pessoa não encontrada para exclusão." });
+            {
+                return Problem(
+                    detail: "Pessoa não encontrada para exclusão.",
+                    statusCode: StatusCodes.Status404NotFound);
+            }
 
             return NoContent();
         }
