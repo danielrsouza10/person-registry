@@ -8,6 +8,7 @@ namespace PersonRegistry.Domain.Interfaces
     public interface IPessoaRepository
     {
         Task<IEnumerable<Pessoa>> ObterTodasAsync(int? skip = null, int? take = null);
+        Task<int> ContarAsync();
         Task<Pessoa?> ObterPorCodigoAsync(int codigo);
         Task<IEnumerable<Pessoa>> ObterPorUfAsync(string uf);
         Task<bool> ExisteCpfAsync(string cpf, int? codigoIgnorar = null);
