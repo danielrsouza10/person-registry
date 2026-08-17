@@ -2,6 +2,8 @@ namespace PersonRegistry.Domain.Validation
 {
     public static class CpfValidador
     {
+        public static string Normalizar(string cpf) => new(cpf.Where(char.IsDigit).ToArray());
+
         public static bool EhValido(string? cpf)
         {
             if (string.IsNullOrWhiteSpace(cpf))
@@ -9,7 +11,7 @@ namespace PersonRegistry.Domain.Validation
                 return false;
             }
 
-            var digitos = new string(cpf.Where(char.IsDigit).ToArray());
+            var digitos = Normalizar(cpf);
 
             if (digitos.Length != 11)
             {
