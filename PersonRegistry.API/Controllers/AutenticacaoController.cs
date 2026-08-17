@@ -21,7 +21,9 @@ namespace PersonRegistry.API.Controllers
 
             if (token == null)
             {
-                return Unauthorized(new { Mensagem = "Credenciais inválidas. Verifique usuário e senha." });
+                return Problem(
+                    detail: "Credenciais inválidas. Verifique usuário e senha.",
+                    statusCode: StatusCodes.Status401Unauthorized);
             }
 
             return Ok(new { Token = token, Tipo = "Bearer" });
