@@ -1,11 +1,12 @@
 using FluentValidation;
-using System.Text;
-using PersonRegistry.Domain.Interfaces;
+using PersonRegistry.Application.DTOs;
 using PersonRegistry.Application.Interfaces;
 using PersonRegistry.Application.Services;
 using PersonRegistry.Application.Validators;
+using PersonRegistry.Domain.Interfaces;
 using PersonRegistry.Infrastructure.Repositories;
-using PersonRegistry.Application.DTOs;
+using Scalar.AspNetCore;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
