@@ -1,11 +1,11 @@
 using FluentValidation;
 using System.Text;
-using PersonRegistry.Domain.Entities;
 using PersonRegistry.Domain.Interfaces;
 using PersonRegistry.Application.Interfaces;
 using PersonRegistry.Application.Services;
 using PersonRegistry.Application.Validators;
 using PersonRegistry.Infrastructure.Repositories;
+using PersonRegistry.Application.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +16,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton<IPessoaRepository, PessoaRepository>();
 
 builder.Services.AddScoped<IPessoaService, PessoaService>();
-builder.Services.AddScoped<IValidator<Pessoa>, PessoaValidator>();
+builder.Services.AddScoped<IValidator<RequisicaoPessoaDto>, PessoaValidator>();
 
 
 var app = builder.Build();

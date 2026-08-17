@@ -10,9 +10,23 @@ namespace PersonRegistry.Infrastructure.Repositories
     {
         private readonly List<Pessoa> _pessoas = new();
         private int idAtual = 0;
-        
-        public Task<IEnumerable<Pessoa>> ObterTodasAsync()
-            => Task.FromResult(_pessoas.AsEnumerable());
+
+        public Task<IEnumerable<Pessoa>> ObterTodasAsync(int? skip = null, int? take = null)
+        {
+            var query = _pessoas.AsEnumerable();
+
+            if (skip.HasValue)
+            {
+                query = query.Skip(skip.Value);
+            }
+
+            if (take.HasValue)
+            {
+                query = query.Take(take.Value);
+            }
+
+            return Task.FromResult(query);
+        }
 
         public Task<Pessoa?> ObterPorCodigoAsync(int codigo)
             => Task.FromResult(_pessoas.FirstOrDefault(p => p.Codigo == codigo));
