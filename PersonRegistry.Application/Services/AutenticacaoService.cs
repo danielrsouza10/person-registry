@@ -24,13 +24,18 @@ namespace PersonRegistry.Application.Services
 
         public string? Autenticar(RequisicaoLoginDto loginDto)
         {
-            if (string.Equals(loginDto.Username, _adminSettings.Username, StringComparison.OrdinalIgnoreCase) &&
-            loginDto.Password == _adminSettings.Password)
+            if (!string.Equals(loginDto.Username, _adminSettings.Username, StringComparison.OrdinalIgnoreCase))
             {
-                return GerarTokenJwt(loginDto.Username);
+                return null;
             }
 
-            return null;
+            if (string.IsNullOrWhiteSpace(_adminSettings.PasswordHash) ||
+                !BCrypt.Net.BCrypt.Verify(loginDto.Password, _adminSettings.PasswordHash))
+            {
+                return null;
+            }
+
+            return GerarTokenJwt(loginDto.Username);
         }
 
         private string GerarTokenJwt(string username)
