@@ -99,6 +99,24 @@ namespace PersonRegistry.Tests
         }
 
         [Fact]
+        public async Task AdicionarAsync_ComCpfFormatado_DeveArmazenarSomenteDigitos()
+        {
+            var repositorioMock = new Mock<IPessoaRepository>();
+            repositorioMock.Setup(r => r.ExisteCpfAsync(CpfValido, null)).ReturnsAsync(false);
+            repositorioMock.Setup(r => r.AdicionarAsync(It.IsAny<Pessoa>()))
+                .ReturnsAsync((Pessoa p) => { p.Codigo = 1; return p; });
+
+            var service = CriarService(repositorioMock);
+            var dto = CriarDtoValido();
+            dto.Cpf = "529.982.247-25";
+
+            var resultado = await service.AdicionarAsync(dto);
+
+            Assert.Equal(CpfValido, resultado.Cpf);
+            repositorioMock.Verify(r => r.AdicionarAsync(It.Is<Pessoa>(p => p.Cpf == CpfValido)), Times.Once);
+        }
+
+        [Fact]
         public async Task ObterTodasAsync_DeveRetornarMetadadosDePaginacao()
         {
             var pessoas = new List<Pessoa>

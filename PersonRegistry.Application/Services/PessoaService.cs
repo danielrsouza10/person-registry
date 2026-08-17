@@ -4,6 +4,7 @@ using PersonRegistry.Application.DTOs;
 using PersonRegistry.Application.Interfaces;
 using PersonRegistry.Domain.Entities;
 using PersonRegistry.Domain.Interfaces;
+using PersonRegistry.Domain.Validation;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -50,12 +51,13 @@ namespace PersonRegistry.Application.Services
         public async Task<RespostaPessoaDto> AdicionarAsync(RequisicaoPessoaDto dto)
         {
             await _validator.ValidateAndThrowAsync(dto);
-            await GarantirCpfNaoDuplicadoAsync(dto.Cpf);
+            var cpfNormalizado = CpfValidador.Normalizar(dto.Cpf);
+            await GarantirCpfNaoDuplicadoAsync(cpfNormalizado);
 
             var pessoa = new Pessoa
             {
                 Nome = dto.Nome,
-                Cpf = dto.Cpf,
+                Cpf = cpfNormalizado,
                 Uf = dto.Uf,
                 DataNascimento = dto.DataNascimento
             };
@@ -67,13 +69,14 @@ namespace PersonRegistry.Application.Services
         public async Task<RespostaPessoaDto?> AtualizarAsync(int codigo, RequisicaoPessoaDto dto)
         {
             await _validator.ValidateAndThrowAsync(dto);
-            await GarantirCpfNaoDuplicadoAsync(dto.Cpf, codigo);
+            var cpfNormalizado = CpfValidador.Normalizar(dto.Cpf);
+            await GarantirCpfNaoDuplicadoAsync(cpfNormalizado, codigo);
 
             var pessoa = new Pessoa
             {
                 Codigo = codigo,
                 Nome = dto.Nome,
-                Cpf = dto.Cpf,
+                Cpf = cpfNormalizado,
                 Uf = dto.Uf,
                 DataNascimento = dto.DataNascimento
             };
