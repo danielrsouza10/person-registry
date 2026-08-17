@@ -22,20 +22,20 @@ namespace PersonRegistry.Application.Services
             _adminSettings = adminSettings.Value;
         }
 
-        public string? Autenticar(RequisicaoLoginDto loginDto)
+        public Task<string?> AutenticarAsync(RequisicaoLoginDto loginDto)
         {
             if (!string.Equals(loginDto.Username, _adminSettings.Username, StringComparison.OrdinalIgnoreCase))
             {
-                return null;
+                return Task.FromResult<string?>(null);
             }
 
             if (string.IsNullOrWhiteSpace(_adminSettings.PasswordHash) ||
                 !BCrypt.Net.BCrypt.Verify(loginDto.Password, _adminSettings.PasswordHash))
             {
-                return null;
+                return Task.FromResult<string?>(null);
             }
 
-            return GerarTokenJwt(loginDto.Username);
+            return Task.FromResult<string?>(GerarTokenJwt(loginDto.Username));
         }
 
         private string GerarTokenJwt(string username)

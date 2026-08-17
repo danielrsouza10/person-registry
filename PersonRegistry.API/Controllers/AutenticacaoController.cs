@@ -15,9 +15,9 @@ namespace PersonRegistry.API.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] RequisicaoLoginDto loginDto)
+        public async Task<IActionResult> Login([FromBody] RequisicaoLoginDto loginDto)
         {
-            var token = _autenticacaoService.Autenticar(loginDto);
+            var token = await _autenticacaoService.AutenticarAsync(loginDto);
 
             if (token == null)
             {
