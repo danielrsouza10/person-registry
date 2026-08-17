@@ -3,4 +3,5 @@
   <Project Path="PersonRegistry.Application/PersonRegistry.Application.csproj" />
   <Project Path="PersonRegistry.Domain/PersonRegistry.Domain.csproj" />
   <Project Path="PersonRegistry.Infrastructure/PersonRegistry.Infrastructure.csproj" />
+  <Project Path="PersonRegistry.Tests/PersonRegistry.Tests.csproj" />
 </Solution>
