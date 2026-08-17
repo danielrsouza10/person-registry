@@ -21,10 +21,18 @@ namespace PersonRegistry.Application.Services
             _validator = validator;
         }
 
-        public async Task<IEnumerable<RespostaPessoaDto>> ObterTodasAsync(int? skip = null, int? take = null)
+        public async Task<RespostaPaginadaDto<RespostaPessoaDto>> ObterTodasAsync(int? skip = null, int? take = null)
         {
             var pessoas = await _repository.ObterTodasAsync(skip, take);
-            return pessoas.Select(ParaRespostaDto);
+            var total = await _repository.ContarAsync();
+
+            return new RespostaPaginadaDto<RespostaPessoaDto>
+            {
+                Itens = pessoas.Select(ParaRespostaDto),
+                Total = total,
+                Skip = skip ?? 0,
+                Take = take
+            };
         }
 
         public async Task<RespostaPessoaDto?> ObterPorCodigoAsync(int codigo)
