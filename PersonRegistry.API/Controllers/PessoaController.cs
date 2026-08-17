@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PersonRegistry.Application.DTOs;
 using PersonRegistry.Application.Interfaces;
@@ -6,6 +7,7 @@ using PersonRegistry.Application.Services;
 
 namespace PersonRegistry.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class PessoaController : ControllerBase
