@@ -7,6 +7,6 @@ namespace PersonRegistry.Application.Interfaces
 {
     public interface IAutenticacaoService
     {
-        string? Autenticar(RequisicaoLoginDto loginDto);
+        Task<string?> AutenticarAsync(RequisicaoLoginDto loginDto);
     }
 }

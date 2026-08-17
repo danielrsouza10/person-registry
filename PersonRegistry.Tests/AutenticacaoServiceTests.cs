@@ -25,42 +25,42 @@ namespace PersonRegistry.Tests
         }
 
         [Fact]
-        public void Autenticar_ComCredenciaisCorretas_DeveRetornarToken()
+        public async Task AutenticarAsync_ComCredenciaisCorretas_DeveRetornarToken()
         {
             var service = CriarService("admin", "admin123");
 
-            var token = service.Autenticar(new RequisicaoLoginDto { Username = "admin", Password = "admin123" });
+            var token = await service.AutenticarAsync(new RequisicaoLoginDto { Username = "admin", Password = "admin123" });
 
             Assert.NotNull(token);
             Assert.NotEmpty(token);
         }
 
         [Fact]
-        public void Autenticar_ComSenhaIncorreta_DeveRetornarNull()
+        public async Task AutenticarAsync_ComSenhaIncorreta_DeveRetornarNull()
         {
             var service = CriarService("admin", "admin123");
 
-            var token = service.Autenticar(new RequisicaoLoginDto { Username = "admin", Password = "senha-errada" });
+            var token = await service.AutenticarAsync(new RequisicaoLoginDto { Username = "admin", Password = "senha-errada" });
 
             Assert.Null(token);
         }
 
         [Fact]
-        public void Autenticar_ComUsuarioInexistente_DeveRetornarNull()
+        public async Task AutenticarAsync_ComUsuarioInexistente_DeveRetornarNull()
         {
             var service = CriarService("admin", "admin123");
 
-            var token = service.Autenticar(new RequisicaoLoginDto { Username = "outro-usuario", Password = "admin123" });
+            var token = await service.AutenticarAsync(new RequisicaoLoginDto { Username = "outro-usuario", Password = "admin123" });
 
             Assert.Null(token);
         }
 
         [Fact]
-        public void Autenticar_ComUsernameEmCasoDiferente_DeveAutenticar()
+        public async Task AutenticarAsync_ComUsernameEmCasoDiferente_DeveAutenticar()
         {
             var service = CriarService("admin", "admin123");
 
-            var token = service.Autenticar(new RequisicaoLoginDto { Username = "ADMIN", Password = "admin123" });
+            var token = await service.AutenticarAsync(new RequisicaoLoginDto { Username = "ADMIN", Password = "admin123" });
 
             Assert.NotNull(token);
         }
