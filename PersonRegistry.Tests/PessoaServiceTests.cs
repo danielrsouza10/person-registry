@@ -99,6 +99,47 @@ namespace PersonRegistry.Tests
         }
 
         [Fact]
+        public async Task AdicionarAsync_ComCpfFormatado_DeveArmazenarSomenteDigitos()
+        {
+            var repositorioMock = new Mock<IPessoaRepository>();
+            repositorioMock.Setup(r => r.ExisteCpfAsync(CpfValido, null)).ReturnsAsync(false);
+            repositorioMock.Setup(r => r.AdicionarAsync(It.IsAny<Pessoa>()))
+                .ReturnsAsync((Pessoa p) => { p.Codigo = 1; return p; });
+
+            var service = CriarService(repositorioMock);
+            var dto = CriarDtoValido();
+            dto.Cpf = "529.982.247-25";
+
+            var resultado = await service.AdicionarAsync(dto);
+
+            Assert.Equal(CpfValido, resultado.Cpf);
+            repositorioMock.Verify(r => r.AdicionarAsync(It.Is<Pessoa>(p => p.Cpf == CpfValido)), Times.Once);
+        }
+
+        [Fact]
+        public async Task ObterTodasAsync_DeveRetornarMetadadosDePaginacao()
+        {
+            var pessoas = new List<Pessoa>
+            {
+                new() { Codigo = 1, Nome = "Pessoa 1", Cpf = CpfValido, Uf = "GO", DataNascimento = DateTime.Now },
+                new() { Codigo = 2, Nome = "Pessoa 2", Cpf = CpfValido, Uf = "SP", DataNascimento = DateTime.Now }
+            };
+
+            var repositorioMock = new Mock<IPessoaRepository>();
+            repositorioMock.Setup(r => r.ObterTodasAsync(0, 2)).ReturnsAsync(pessoas);
+            repositorioMock.Setup(r => r.ContarAsync()).ReturnsAsync(10);
+
+            var service = CriarService(repositorioMock);
+
+            var resultado = await service.ObterTodasAsync(0, 2);
+
+            Assert.Equal(10, resultado.Total);
+            Assert.Equal(0, resultado.Skip);
+            Assert.Equal(2, resultado.Take);
+            Assert.Equal(2, resultado.Itens.Count());
+        }
+
+        [Fact]
         public async Task ExcluirAsync_DevePassarCodigoParaRepositorio()
         {
             var repositorioMock = new Mock<IPessoaRepository>();

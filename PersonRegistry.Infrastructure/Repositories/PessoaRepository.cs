@@ -26,6 +26,9 @@ namespace PersonRegistry.Infrastructure.Repositories
             return Task.FromResult(query);
         }
 
+        public Task<int> ContarAsync()
+            => Task.FromResult(_pessoas.Count);
+
         public Task<Pessoa?> ObterPorCodigoAsync(int codigo)
             => Task.FromResult(_pessoas.TryGetValue(codigo, out var pessoa) ? pessoa : null);
 

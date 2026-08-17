@@ -26,7 +26,7 @@ namespace PersonRegistry.Application.Validators
 
             RuleFor(p => p.Uf)
                 .NotEmpty().WithMessage("A UF é obrigatória.")
-                .Length(2).WithMessage("A UF deve conter exatamente 2 caracteres (Ex: GO, SP).");
+                .Must(UfValidador.EhValida).WithMessage("A UF informada é inválida.");
         }
     }
 }

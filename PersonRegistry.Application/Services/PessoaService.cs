@@ -4,6 +4,7 @@ using PersonRegistry.Application.DTOs;
 using PersonRegistry.Application.Interfaces;
 using PersonRegistry.Domain.Entities;
 using PersonRegistry.Domain.Interfaces;
+using PersonRegistry.Domain.Validation;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,10 +22,18 @@ namespace PersonRegistry.Application.Services
             _validator = validator;
         }
 
-        public async Task<IEnumerable<RespostaPessoaDto>> ObterTodasAsync(int? skip = null, int? take = null)
+        public async Task<RespostaPaginadaDto<RespostaPessoaDto>> ObterTodasAsync(int? skip = null, int? take = null)
         {
             var pessoas = await _repository.ObterTodasAsync(skip, take);
-            return pessoas.Select(ParaRespostaDto);
+            var total = await _repository.ContarAsync();
+
+            return new RespostaPaginadaDto<RespostaPessoaDto>
+            {
+                Itens = pessoas.Select(ParaRespostaDto),
+                Total = total,
+                Skip = skip ?? 0,
+                Take = take
+            };
         }
 
         public async Task<RespostaPessoaDto?> ObterPorCodigoAsync(int codigo)
@@ -42,12 +51,13 @@ namespace PersonRegistry.Application.Services
         public async Task<RespostaPessoaDto> AdicionarAsync(RequisicaoPessoaDto dto)
         {
             await _validator.ValidateAndThrowAsync(dto);
-            await GarantirCpfNaoDuplicadoAsync(dto.Cpf);
+            var cpfNormalizado = CpfValidador.Normalizar(dto.Cpf);
+            await GarantirCpfNaoDuplicadoAsync(cpfNormalizado);
 
             var pessoa = new Pessoa
             {
                 Nome = dto.Nome,
-                Cpf = dto.Cpf,
+                Cpf = cpfNormalizado,
                 Uf = dto.Uf,
                 DataNascimento = dto.DataNascimento
             };
@@ -59,13 +69,14 @@ namespace PersonRegistry.Application.Services
         public async Task<RespostaPessoaDto?> AtualizarAsync(int codigo, RequisicaoPessoaDto dto)
         {
             await _validator.ValidateAndThrowAsync(dto);
-            await GarantirCpfNaoDuplicadoAsync(dto.Cpf, codigo);
+            var cpfNormalizado = CpfValidador.Normalizar(dto.Cpf);
+            await GarantirCpfNaoDuplicadoAsync(cpfNormalizado, codigo);
 
             var pessoa = new Pessoa
             {
                 Codigo = codigo,
                 Nome = dto.Nome,
-                Cpf = dto.Cpf,
+                Cpf = cpfNormalizado,
                 Uf = dto.Uf,
                 DataNascimento = dto.DataNascimento
             };

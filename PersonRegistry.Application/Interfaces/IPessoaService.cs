@@ -7,7 +7,7 @@ namespace PersonRegistry.Application.Interfaces
 {
     public interface IPessoaService
     {
-        Task<IEnumerable<RespostaPessoaDto>> ObterTodasAsync(int? skip = null, int? take = null);
+        Task<RespostaPaginadaDto<RespostaPessoaDto>> ObterTodasAsync(int? skip = null, int? take = null);
         Task<RespostaPessoaDto?> ObterPorCodigoAsync(int codigo);
         Task<IEnumerable<RespostaPessoaDto>> ObterPorUfAsync(string uf);
         Task<RespostaPessoaDto> AdicionarAsync(RequisicaoPessoaDto dto);
