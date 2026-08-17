@@ -10,6 +10,7 @@ namespace PersonRegistry.Domain.Interfaces
         Task<IEnumerable<Pessoa>> ObterTodasAsync(int? skip = null, int? take = null);
         Task<Pessoa?> ObterPorCodigoAsync(int codigo);
         Task<IEnumerable<Pessoa>> ObterPorUfAsync(string uf);
+        Task<bool> ExisteCpfAsync(string cpf, int? codigoIgnorar = null);
         Task<Pessoa> AdicionarAsync(Pessoa pessoa);
         Task<Pessoa?> AtualizarAsync(Pessoa pessoa);
         Task<bool> ExcluirAsync(int codigo);

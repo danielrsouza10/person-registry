@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using PersonRegistry.Application.DTOs;
 using PersonRegistry.Application.Interfaces;
 using PersonRegistry.Domain.Entities;
@@ -32,6 +33,7 @@ namespace PersonRegistry.Application.Services
         public async Task<Pessoa> AdicionarAsync(RequisicaoPessoaDto dto)
         {
             await _validator.ValidateAndThrowAsync(dto);
+            await GarantirCpfNaoDuplicadoAsync(dto.Cpf);
 
             var pessoa = new Pessoa
             {
@@ -47,6 +49,7 @@ namespace PersonRegistry.Application.Services
         public async Task<Pessoa?> AtualizarAsync(int codigo, RequisicaoPessoaDto dto)
         {
             await _validator.ValidateAndThrowAsync(dto);
+            await GarantirCpfNaoDuplicadoAsync(dto.Cpf, codigo);
 
             var pessoa = new Pessoa
             {
@@ -58,6 +61,17 @@ namespace PersonRegistry.Application.Services
             };
 
             return await _repository.AtualizarAsync(pessoa);
+        }
+
+        private async Task GarantirCpfNaoDuplicadoAsync(string cpf, int? codigoIgnorar = null)
+        {
+            if (await _repository.ExisteCpfAsync(cpf, codigoIgnorar))
+            {
+                throw new ValidationException(new[]
+                {
+                    new ValidationFailure(nameof(Pessoa.Cpf), "Já existe uma pessoa cadastrada com este CPF.")
+                });
+            }
         }
 
         public async Task<bool> ExcluirAsync(int codigo)
