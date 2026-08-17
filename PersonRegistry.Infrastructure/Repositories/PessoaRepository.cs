@@ -9,7 +9,7 @@ namespace PersonRegistry.Infrastructure.Repositories
     public class PessoaRepository : IPessoaRepository
     {
         private readonly List<Pessoa> _pessoas = new();
-        private int idAtual = 0;
+        private int idAtual = 1;
 
         public Task<IEnumerable<Pessoa>> ObterTodasAsync(int? skip = null, int? take = null)
         {
