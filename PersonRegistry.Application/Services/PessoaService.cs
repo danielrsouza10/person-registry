@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using FluentValidation.Results;
 using PersonRegistry.Application.DTOs;
 using PersonRegistry.Application.Interfaces;
@@ -21,16 +21,25 @@ namespace PersonRegistry.Application.Services
             _validator = validator;
         }
 
-        public async Task<IEnumerable<Pessoa>> ObterTodasAsync(int? skip = null, int? take = null)
-            => await _repository.ObterTodasAsync(skip, take);
+        public async Task<IEnumerable<RespostaPessoaDto>> ObterTodasAsync(int? skip = null, int? take = null)
+        {
+            var pessoas = await _repository.ObterTodasAsync(skip, take);
+            return pessoas.Select(ParaRespostaDto);
+        }
 
-        public async Task<Pessoa?> ObterPorCodigoAsync(int codigo)
-            => await _repository.ObterPorCodigoAsync(codigo);
+        public async Task<RespostaPessoaDto?> ObterPorCodigoAsync(int codigo)
+        {
+            var pessoa = await _repository.ObterPorCodigoAsync(codigo);
+            return pessoa == null ? null : ParaRespostaDto(pessoa);
+        }
 
-        public async Task<IEnumerable<Pessoa>> ObterPorUfAsync(string uf)
-            => await _repository.ObterPorUfAsync(uf);
+        public async Task<IEnumerable<RespostaPessoaDto>> ObterPorUfAsync(string uf)
+        {
+            var pessoas = await _repository.ObterPorUfAsync(uf);
+            return pessoas.Select(ParaRespostaDto);
+        }
 
-        public async Task<Pessoa> AdicionarAsync(RequisicaoPessoaDto dto)
+        public async Task<RespostaPessoaDto> AdicionarAsync(RequisicaoPessoaDto dto)
         {
             await _validator.ValidateAndThrowAsync(dto);
             await GarantirCpfNaoDuplicadoAsync(dto.Cpf);
@@ -43,10 +52,11 @@ namespace PersonRegistry.Application.Services
                 DataNascimento = dto.DataNascimento
             };
 
-            return await _repository.AdicionarAsync(pessoa);
+            var pessoaSalva = await _repository.AdicionarAsync(pessoa);
+            return ParaRespostaDto(pessoaSalva);
         }
 
-        public async Task<Pessoa?> AtualizarAsync(int codigo, RequisicaoPessoaDto dto)
+        public async Task<RespostaPessoaDto?> AtualizarAsync(int codigo, RequisicaoPessoaDto dto)
         {
             await _validator.ValidateAndThrowAsync(dto);
             await GarantirCpfNaoDuplicadoAsync(dto.Cpf, codigo);
@@ -60,8 +70,12 @@ namespace PersonRegistry.Application.Services
                 DataNascimento = dto.DataNascimento
             };
 
-            return await _repository.AtualizarAsync(pessoa);
+            var pessoaAtualizada = await _repository.AtualizarAsync(pessoa);
+            return pessoaAtualizada == null ? null : ParaRespostaDto(pessoaAtualizada);
         }
+
+        public async Task<bool> ExcluirAsync(int codigo)
+            => await _repository.ExcluirAsync(codigo);
 
         private async Task GarantirCpfNaoDuplicadoAsync(string cpf, int? codigoIgnorar = null)
         {
@@ -74,7 +88,13 @@ namespace PersonRegistry.Application.Services
             }
         }
 
-        public async Task<bool> ExcluirAsync(int codigo)
-            => await _repository.ExcluirAsync(codigo);
+        private static RespostaPessoaDto ParaRespostaDto(Pessoa pessoa) => new()
+        {
+            Codigo = pessoa.Codigo,
+            Nome = pessoa.Nome,
+            Cpf = pessoa.Cpf,
+            Uf = pessoa.Uf,
+            DataNascimento = pessoa.DataNascimento
+        };
     }
 }
