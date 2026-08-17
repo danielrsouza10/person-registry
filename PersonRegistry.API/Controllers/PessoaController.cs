@@ -44,7 +44,7 @@ namespace PersonRegistry.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Gravar([FromBody] RequisicaoPessoaDto dto)
+        public async Task<IActionResult> Criar([FromBody] RequisicaoPessoaDto dto)
         {
             var pessoaSalva = await _service.AdicionarAsync(dto);
             return CreatedAtAction(nameof(ObterPorCodigo), new { codigo = pessoaSalva.Codigo }, pessoaSalva);

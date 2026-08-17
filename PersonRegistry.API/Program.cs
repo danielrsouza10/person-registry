@@ -10,7 +10,6 @@ using PersonRegistry.Application.Validators;
 using PersonRegistry.Domain.Interfaces;
 using PersonRegistry.Infrastructure.Repositories;
 using Scalar.AspNetCore;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,11 +29,15 @@ builder.Services.AddScoped<IAutenticacaoService, AutenticacaoService>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 builder.Services.Configure<AdminSettings>(builder.Configuration.GetSection("AdminSettings"));
 
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
+                   ?? throw new InvalidOperationException("A chave JWT não foi configurada.");
 
-var jwtSecret = builder.Configuration["JwtSettings:Secret"]
-                ?? throw new InvalidOperationException("A chave JWT n�o foi configurada.");
+if (string.IsNullOrWhiteSpace(jwtSettings.Secret))
+{
+    throw new InvalidOperationException("A chave JWT não foi configurada.");
+}
 
-var key = Encoding.ASCII.GetBytes(jwtSecret);
+var key = jwtSettings.ObterChaveSimetrica();
 
 builder.Services.AddAuthentication(x =>
 {

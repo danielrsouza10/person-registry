@@ -7,7 +7,7 @@ API REST em ASP.NET Core (.NET 10) para cadastro de pessoas, com autenticação 
 ```
 PersonRegistry.API             Controllers, Program.cs (startup), appsettings
 PersonRegistry.Application     DTOs, serviços, validadores (FluentValidation), settings
-PersonRegistry.Domain          Entidades, interfaces de repositório, validações de domínio (CPF)
+PersonRegistry.Domain          Entidades, interfaces de repositório, validações de domínio (CPF, UF)
 PersonRegistry.Infrastructure  Implementação do repositório (em memória)
 PersonRegistry.Tests           Testes unitários (xUnit + Moq)
 ```
@@ -70,7 +70,7 @@ Console.WriteLine(BCrypt.Net.BCrypt.HashPassword("nova-senha"));
 
 e substitua o valor de `AdminSettings:PasswordHash` no `appsettings.json`.
 
-> Em produção, evite manter segredos (`JwtSettings:Secret`, `AdminSettings:PasswordHash`) direto no `appsettings.json` do repositório — prefira variáveis de ambiente, `dotnet user-secrets` ou um cofre de segredos.
+> **Nota sobre segredos:** `JwtSettings:Secret` e `AdminSettings:PasswordHash` estão commitados propositalmente no `appsettings.json` para que o projeto rode sem nenhuma configuração adicional (facilitando a avaliação deste desafio). Em um cenário real de produção, esses valores **não** deveriam ficar no controle de versão — a abordagem correta é usar `dotnet user-secrets` em desenvolvimento e variáveis de ambiente ou um cofre de segredos (Azure Key Vault, AWS Secrets Manager, etc.) em produção.
 
 ## Endpoints
 
@@ -78,7 +78,16 @@ e substitua o valor de `AdminSettings:PasswordHash` no `appsettings.json`.
 Autentica e retorna um token JWT (válido por `JwtSettings:ExpirationHours`).
 
 ### `GET /api/pessoa`
-Lista pessoas cadastradas. Suporta paginação via query string `skip` e `take`.
+Lista pessoas cadastradas, com paginação via query string `skip` e `take` (ambos opcionais; valores negativos retornam 400). A resposta inclui metadados de paginação:
+
+```json
+{
+  "itens": [{ "codigo": 1, "nome": "Fulano de Tal", "cpf": "52998224725", "uf": "GO", "dataNascimento": "1990-01-01T00:00:00" }],
+  "total": 1,
+  "skip": 0,
+  "take": null
+}
+```
 
 ### `GET /api/pessoa/{codigo}`
 Busca uma pessoa pelo código.
@@ -87,7 +96,7 @@ Busca uma pessoa pelo código.
 Lista pessoas de uma UF (case-insensitive).
 
 ### `POST /api/pessoa`
-Cadastra uma nova pessoa.
+Cadastra uma nova pessoa e retorna o objeto salvo.
 
 ```json
 {
@@ -98,15 +107,31 @@ Cadastra uma nova pessoa.
 }
 ```
 
-Validações aplicadas: nome obrigatório (até 100 caracteres), data de nascimento obrigatória e não futura, CPF obrigatório/válido (dígito verificador) e não duplicado, UF obrigatória com 2 caracteres.
+Validações aplicadas:
+- Nome obrigatório (até 100 caracteres).
+- Data de nascimento obrigatória e não futura.
+- CPF obrigatório, com dígito verificador válido e não duplicado (armazenado sempre sem máscara, apenas os dígitos, independente do formato enviado).
+- UF obrigatória e válida (uma das 26 siglas de estado + DF).
 
 ### `PUT /api/pessoa/{codigo}`
-Atualiza uma pessoa existente (mesmas validações do cadastro).
+Atualiza uma pessoa existente (mesmas validações do cadastro) e retorna o objeto atualizado.
 
 ### `DELETE /api/pessoa/{codigo}`
 Remove uma pessoa pelo código.
 
 > Todos os endpoints de `/api/pessoa` exigem autenticação (`[Authorize]`).
+
+## Tratamento de erros
+
+Erros de validação, autenticação e "não encontrado" seguem o padrão [`ProblemDetails`](https://www.rfc-editor.org/rfc/rfc9110#section-15.5.5) (RFC 9110), por exemplo:
+
+```json
+{
+  "title": "Erro de validação.",
+  "status": 400,
+  "errors": { "Cpf": ["O CPF informado é inválido."] }
+}
+```
 
 ## Persistência
 

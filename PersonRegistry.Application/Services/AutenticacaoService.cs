@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace PersonRegistry.Application.Services
 {
@@ -41,7 +40,7 @@ namespace PersonRegistry.Application.Services
         private string GerarTokenJwt(string username)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
+            var key = _jwtSettings.ObterChaveSimetrica();
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

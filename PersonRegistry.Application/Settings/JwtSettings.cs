@@ -8,5 +8,7 @@ namespace PersonRegistry.Application.Settings
     {
         public string Secret { get; set; } = string.Empty;
         public int ExpirationHours { get; set; }
+
+        public byte[] ObterChaveSimetrica() => Encoding.UTF8.GetBytes(Secret);
     }
 }

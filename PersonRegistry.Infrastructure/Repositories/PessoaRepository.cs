@@ -39,7 +39,7 @@ namespace PersonRegistry.Infrastructure.Repositories
         {
             var existe = _pessoas.Values.Any(p =>
                 p.Codigo != codigoIgnorar &&
-                string.Equals(SomenteDigitos(p.Cpf), SomenteDigitos(cpf), StringComparison.Ordinal));
+                string.Equals(p.Cpf, cpf, StringComparison.Ordinal));
 
             return Task.FromResult(existe);
         }
@@ -68,8 +68,5 @@ namespace PersonRegistry.Infrastructure.Repositories
 
         public Task<bool> ExcluirAsync(int codigo)
             => Task.FromResult(_pessoas.TryRemove(codigo, out _));
-
-        private static string SomenteDigitos(string valor)
-            => new(valor.Where(char.IsDigit).ToArray());
     }
 }
