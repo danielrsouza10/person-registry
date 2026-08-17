@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using PersonRegistry.Application.DTOs;
 using PersonRegistry.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace PersonRegistry.Application.Validators
 {
-    public class PessoaValidator : AbstractValidator<Pessoa>
+    public class PessoaValidator : AbstractValidator<RequisicaoPessoaDto>
     {
         public PessoaValidator()
         {

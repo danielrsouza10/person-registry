@@ -7,7 +7,7 @@ namespace PersonRegistry.Domain.Interfaces
 {
     public interface IPessoaRepository
     {
-        Task<IEnumerable<Pessoa>> ObterTodasAsync();
+        Task<IEnumerable<Pessoa>> ObterTodasAsync(int? skip = null, int? take = null);
         Task<Pessoa?> ObterPorCodigoAsync(int codigo);
         Task<IEnumerable<Pessoa>> ObterPorUfAsync(string uf);
         Task<Pessoa> AdicionarAsync(Pessoa pessoa);
