@@ -19,6 +19,21 @@ namespace PersonRegistry.API.Controllers
         [HttpGet]
         public async Task<IActionResult> ObterTodas([FromQuery] int? skip, [FromQuery] int? take)
         {
+            if (skip is < 0)
+            {
+                ModelState.AddModelError(nameof(skip), "O valor de skip não pode ser negativo.");
+            }
+
+            if (take is < 0)
+            {
+                ModelState.AddModelError(nameof(take), "O valor de take não pode ser negativo.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
             var pessoas = await _service.ObterTodasAsync(skip, take);
             return Ok(pessoas);
         }

@@ -53,17 +53,17 @@ namespace PersonRegistry.Infrastructure.Repositories
 
         public Task<Pessoa?> AtualizarAsync(Pessoa pessoa)
         {
-            if (!_pessoas.TryGetValue(pessoa.Codigo, out var existentePessoa))
+            if (!_pessoas.TryGetValue(pessoa.Codigo, out var existente))
             {
                 return Task.FromResult<Pessoa?>(null);
             }
 
-            existentePessoa.Nome = pessoa.Nome;
-            existentePessoa.Cpf = pessoa.Cpf;
-            existentePessoa.Uf = pessoa.Uf;
-            existentePessoa.DataNascimento = pessoa.DataNascimento;
+            if (!_pessoas.TryUpdate(pessoa.Codigo, pessoa, existente))
+            {
+                return Task.FromResult<Pessoa?>(null);
+            }
 
-            return Task.FromResult<Pessoa?>(existentePessoa);
+            return Task.FromResult<Pessoa?>(pessoa);
         }
 
         public Task<bool> ExcluirAsync(int codigo)
