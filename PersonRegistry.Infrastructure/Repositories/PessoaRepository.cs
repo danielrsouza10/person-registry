@@ -1,19 +1,17 @@
-﻿using PersonRegistry.Domain.Entities;
+using PersonRegistry.Domain.Entities;
 using PersonRegistry.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Collections.Concurrent;
 
 namespace PersonRegistry.Infrastructure.Repositories
 {
     public class PessoaRepository : IPessoaRepository
     {
-        private readonly List<Pessoa> _pessoas = new();
-        private int idAtual = 1;
+        private readonly ConcurrentDictionary<int, Pessoa> _pessoas = new();
+        private int _idAtual;
 
         public Task<IEnumerable<Pessoa>> ObterTodasAsync(int? skip = null, int? take = null)
         {
-            var query = _pessoas.AsEnumerable();
+            var query = _pessoas.Values.OrderBy(p => p.Codigo).AsEnumerable();
 
             if (skip.HasValue)
             {
@@ -29,42 +27,46 @@ namespace PersonRegistry.Infrastructure.Repositories
         }
 
         public Task<Pessoa?> ObterPorCodigoAsync(int codigo)
-            => Task.FromResult(_pessoas.FirstOrDefault(p => p.Codigo == codigo));
+            => Task.FromResult(_pessoas.TryGetValue(codigo, out var pessoa) ? pessoa : null);
 
         public Task<IEnumerable<Pessoa>> ObterPorUfAsync(string uf)
-            => Task.FromResult(_pessoas.Where(p => p.Uf == uf));
+            => Task.FromResult(_pessoas.Values.Where(p => string.Equals(p.Uf, uf, StringComparison.OrdinalIgnoreCase)).AsEnumerable());
+
+        public Task<bool> ExisteCpfAsync(string cpf, int? codigoIgnorar = null)
+        {
+            var existe = _pessoas.Values.Any(p =>
+                p.Codigo != codigoIgnorar &&
+                string.Equals(SomenteDigitos(p.Cpf), SomenteDigitos(cpf), StringComparison.Ordinal));
+
+            return Task.FromResult(existe);
+        }
 
         public Task<Pessoa> AdicionarAsync(Pessoa pessoa)
         {
-            pessoa.Codigo = idAtual++;
-            _pessoas.Add(pessoa);
+            pessoa.Codigo = Interlocked.Increment(ref _idAtual);
+            _pessoas[pessoa.Codigo] = pessoa;
             return Task.FromResult(pessoa);
         }
 
         public Task<Pessoa?> AtualizarAsync(Pessoa pessoa)
         {
-            var existentePessoa = _pessoas.FirstOrDefault(p => p.Codigo == pessoa.Codigo);
-
-            if (existentePessoa != null)
+            if (!_pessoas.TryGetValue(pessoa.Codigo, out var existentePessoa))
             {
-                existentePessoa.Nome = pessoa.Nome;
-                existentePessoa.Cpf = pessoa.Cpf;
-                existentePessoa.Uf = pessoa.Uf;
-                existentePessoa.DataNascimento = pessoa.DataNascimento;
+                return Task.FromResult<Pessoa?>(null);
             }
+
+            existentePessoa.Nome = pessoa.Nome;
+            existentePessoa.Cpf = pessoa.Cpf;
+            existentePessoa.Uf = pessoa.Uf;
+            existentePessoa.DataNascimento = pessoa.DataNascimento;
 
             return Task.FromResult<Pessoa?>(existentePessoa);
         }
 
         public Task<bool> ExcluirAsync(int codigo)
-        {
-            var pessoa = _pessoas.FirstOrDefault(p => p.Codigo == codigo);
-            if (pessoa != null)
-            {
-                _pessoas.Remove(pessoa);
-                return Task.FromResult(true);
-            }
-            return Task.FromResult(false);
-        }
+            => Task.FromResult(_pessoas.TryRemove(codigo, out _));
+
+        private static string SomenteDigitos(string valor)
+            => new(valor.Where(char.IsDigit).ToArray());
     }
 }

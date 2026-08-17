@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using PersonRegistry.Application.DTOs;
 using PersonRegistry.Domain.Entities;
+using PersonRegistry.Domain.Validation;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,7 +22,7 @@ namespace PersonRegistry.Application.Validators
 
             RuleFor(p => p.Cpf)
                 .NotEmpty().WithMessage("O CPF é obrigatório.")
-                .Length(11, 14).WithMessage("O CPF deve ter entre 11 e 14 caracteres.");
+                .Must(CpfValidador.EhValido).WithMessage("O CPF informado é inválido.");
 
             RuleFor(p => p.Uf)
                 .NotEmpty().WithMessage("A UF é obrigatória.")
