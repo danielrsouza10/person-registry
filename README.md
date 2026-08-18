@@ -2,7 +2,7 @@
 
 API REST em ASP.NET Core (.NET 10) para cadastro de pessoas, com autenticação via JWT. Organizada em Clean Architecture.
 
-> Este repositório cobre a **Parte 1** do desafio (esta API). A **Parte 2** (consulta SQL de contas a pagar/pagas) está em [`Desafio2_ContasAPagarEPagas.sql`](Desafio2_ContasAPagarEPagas.sql), na raiz do repositório.
+> Este repositório cobre a **Parte 1** do desafio (esta API). A **Parte 2** (consulta SQL de contas a pagar/pagas) está em [`PARTE_2_DESAFIO_TECNICO.sql`](PARTE_2_DESAFIO_TECNICO.sql), na raiz do repositório.
 
 ## Estrutura da solução
 
