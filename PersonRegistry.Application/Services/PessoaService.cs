@@ -59,7 +59,7 @@ namespace PersonRegistry.Application.Services
                 Nome = dto.Nome,
                 Cpf = cpfNormalizado,
                 Uf = dto.Uf,
-                DataNascimento = dto.DataNascimento
+                DataNascimento = dto.DataNascimento!.Value
             };
 
             var pessoaSalva = await _repository.AdicionarAsync(pessoa);
@@ -78,7 +78,7 @@ namespace PersonRegistry.Application.Services
                 Nome = dto.Nome,
                 Cpf = cpfNormalizado,
                 Uf = dto.Uf,
-                DataNascimento = dto.DataNascimento
+                DataNascimento = dto.DataNascimento!.Value
             };
 
             var pessoaAtualizada = await _repository.AtualizarAsync(pessoa);
